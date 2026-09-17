@@ -5,7 +5,7 @@ def hex_int(x):
     return int(x, 16)
 
 parser = argparse.ArgumentParser(description="Diggy Diggy Mole Randomizer")
-parser.add_argument("--seed", type=int, default=1234, help="Change the seed to generate different maps")
+parser.add_argument("--seed", type=int, default=16, help="Change the seed to generate different maps")
 parser.add_argument("--start", type=hex_int, default=0x77, help="Use hexcode 0xYX to pick a starting room")
 
 args = parser.parse_args()
