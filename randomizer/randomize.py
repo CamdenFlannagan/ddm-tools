@@ -1,9 +1,17 @@
-import random
 import sys
+import argparse
 
-seed = 50
-if len(sys.argv) > 1:
-    seed = int(sys.argv[1])
+def hex_int(x):
+    return int(x, 16)
+
+parser = argparse.ArgumentParser(description="Diggy Diggy Mole Randomizer")
+parser.add_argument("--seed", type=int, default=1234, help="Change the seed to generate different maps")
+parser.add_argument("--start", type=hex_int, default=0x77, help="Use hexcode 0xYX to pick a starting room")
+
+args = parser.parse_args()
+
+seed = args.seed
+start = args.start
 
 random_state = seed
 
@@ -33,7 +41,7 @@ up_drill = 0xBE
 double_jump = 0x79
 side_drill = 0x3C
 
-start_new = 0x88
+start_new = start
 end1_new = 0x00
 end2_new = 0x00
 dig_new = 0x00
