@@ -1,10 +1,19 @@
 import random
 import sys
 
+seed = 50
 if len(sys.argv) > 1:
-    random.seed(int(sys.argv[1]))
-else:
-    random.seed(50)
+    seed = int(sys.argv[1])
+
+random_state = seed
+
+# Xorshift psuedorandom algorithm copied from https://en.wikipedia.org/wiki/Xorshift.
+def random():
+    global random_state
+    random_state ^= random_state << 13
+    random_state ^= random_state >> 17
+    random_state ^= random_state << 5
+    return random_state
 
 rooms = [i for i in range(256)]
 
@@ -14,7 +23,7 @@ def swap(arr, i1, i2):
     arr[i2] = temp
 
 for i in range(len(rooms)):
-    swap(rooms, i, random.randint(0, 255))
+    swap(rooms, i, random() & 0xFF )
 
 end1 = 0x06
 end2 = 0xFE
@@ -69,7 +78,7 @@ out += "double_jump = " + hex(double_jump_new).upper() + "\n"
 out += "side_drill = " + hex(side_drill_new).upper() + "\n"
 # print(out)
 
-with open("DDM Randomizer.lua", "r+") as f:
+with open("ddm_randomizer.lua", "r+") as f:
     f.seek(0)
     f.write(out)
 
