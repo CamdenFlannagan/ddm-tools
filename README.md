@@ -12,3 +12,11 @@ py randomizer.py --seed 16 --start 0x23
 The seed and start will default to 16 and 0x88 if you don't provide them yourself.
 
 You can also go into ddm_randomizer.lua and create your own custom, intentional arrangement of Diggy Diggy Mole's screens by altering the scramble table yourself
+
+# The Floor is Lava!
+
+Run this script and restart the game. Now the game will behave just like Super Mario Maker 2's "Once you leave the ground you may not touch the ground again."
+
+This will force you to do a lot of ceiling movement, which is pretty cool. 
+
+I don't think the game is beatable like this, unfortunately, but you can make your own challenges using the randomizer script and a custom arrangement of screens.
