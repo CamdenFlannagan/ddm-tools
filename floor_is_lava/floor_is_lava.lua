@@ -11,8 +11,6 @@ function rram(addr)
 	return emu.read(addr, ram, false)
 end
 
-down_drill = "none"
-
 -- this should call just once around the beginning of each run
 emu.addMemoryCallback(function()
 
@@ -47,25 +45,25 @@ emu.addEventCallback(function()
 	grounded = emu.read(0x580, ram, false) == 0x0E
 	grounded = grounded or emu.read(0x580, ram, false) == 0x0F
 	grounded = grounded and emu.read(0x570, ram, false) == 0x00
-	
-	if rram(0x590) == 0x10 then
+		
+	if rram(0x590) == 0x0F then
 		down_drill = "wind_up"
 	end
-	
+		
 	-- side-drill has interupted the down drill
 	if down_drill == "wind_up" and (rram(0x570) == 0x04 or rram(0x570) == 0x05) then
 		down_drill = "none"
 	end
-	
+		
 	if down_drill == "wind_up" and rram(0x590) == 0x00 then
 		down_drill = "going_down"
 	end
-	
+		
 	if down_drill == "going_down" and (rram(0x580) == 0x0E or rram(0x580) == 0x0F or rram(0x570) == 0x07) then
 		down_drill = "none"
 		grounded = true
 	end
-	
+		
 	if grounded then
 		if not already_grounded then
 			floor_touches = floor_touches + 1
@@ -74,12 +72,12 @@ emu.addEventCallback(function()
 	else
 		already_grounded = false
 	end
-	
+		
 	if floor_touches == 1 and noRestartSaveYet == true then
 		pleaseCreateSave = true
 		noRestartSaveYet = false
 	end
-	
+		
 	if floor_touches > 2 then
 		pleaseRestart = true
 		floor_touches = 1
@@ -89,4 +87,4 @@ emu.addEventCallback(function()
 	emu.drawString(0, 0, floor_touches)
 
 end,
-emu.eventType.endFrame)
+emu.eventType.startFrame)
