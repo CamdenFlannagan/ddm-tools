@@ -1,5 +1,10 @@
 import sys
 import argparse
+import numpy as np
+
+ROOM_HEIGHT = 240
+ROOM_WIDTH = 256
+NUM_ROOMS = 256
 
 def hex_int(x):
     return int(x, 16)
@@ -7,11 +12,13 @@ def hex_int(x):
 parser = argparse.ArgumentParser(description="Diggy Diggy Mole Randomizer")
 parser.add_argument("--seed", type=int, default=16, help="Change the seed to generate different maps.")
 parser.add_argument("--start", type=hex_int, default=0x77, help="Use hexcode 0xYX to pick a starting room. Y is top to bottom, 0 to F. X is left to right, 0 to F.")
+parser.add_argument("--custom", type=str, default="none", help="provide a .csv (comma seperated values) file of a custom arrangement of the map screens")
 
 args = parser.parse_args()
 
 seed = args.seed
 start = args.start
+custom = args.custom
 
 random_state = seed
 
@@ -23,7 +30,7 @@ def random():
     random_state ^= random_state << 5
     return random_state
 
-rooms = [i for i in range(256)]
+rooms = [i for i in range(NUM_ROOMS)]
 
 def swap(arr, i1, i2):
     temp = arr[i1]
@@ -32,6 +39,10 @@ def swap(arr, i1, i2):
 
 for i in range(len(rooms)):
     swap(rooms, i, random() & 0xFF )
+
+if custom != "none":
+    rooms = np.genfromtxt(custom, delimiter=",", dtype=str, encoding="utf-8").flatten()
+    rooms = [int(room, 16) for room in rooms]
 
 end1 = 0x06
 end2 = 0xFE
@@ -55,21 +66,20 @@ for i in range(16):
     out += '\t'
     for j in range(16):
         curr_room = 16*i + j
-        correction = (curr_room + 1) % 256
         if rooms[curr_room] == end1:
-            end1_new = correction
+            end1_new = curr_room
         if rooms[curr_room] == end2:
-            end2_new = correction
+            end2_new = curr_room
         if rooms[curr_room] == dig:
-            dig_new = correction
+            dig_new = curr_room
         if rooms[curr_room] == down_drill:
-            down_drill_new = correction
+            down_drill_new = curr_room
         if rooms[curr_room] == up_drill:
-            up_drill_new = correction
+            up_drill_new = curr_room
         if rooms[curr_room] == double_jump:
-            double_jump_new = correction
+            double_jump_new = curr_room
         if rooms[curr_room] == side_drill:
-            side_drill_new = correction
+            side_drill_new = curr_room
 
         out += hex(rooms[16*i + j]).upper()
         if not (i == 16 and j == 16):
@@ -94,30 +104,29 @@ from PIL import Image, ImageDraw
 import numpy as np
 
 old = np.array(Image.open("ddm_map_original.png"))
-new = np.zeros((240*16, 256*16, 3), dtype=np.uint8)
+new = np.zeros((ROOM_HEIGHT*16, ROOM_WIDTH*16, 3), dtype=np.uint8)
 
-for i in range(256):
+for i in range(NUM_ROOMS):
     x = i // 16
     y = i % 16
-    old_x = rooms[(i - 1) % 256] // 16
-    old_y = rooms[(i - 1) % 256] % 16
-    new[x*240:(x+1)*240, y*256:(y+1)*256] = old[old_x*240:(old_x+1)*240, old_y*256:(old_y+1)*256]
+    old_x = rooms[i] // 16
+    old_y = rooms[i] % 16
+    new[x*ROOM_HEIGHT:(x+1)*ROOM_HEIGHT, y*ROOM_WIDTH:(y+1)*ROOM_WIDTH] = old[old_x*ROOM_HEIGHT:(old_x+1)*ROOM_HEIGHT, old_y*ROOM_WIDTH:(old_y+1)*ROOM_WIDTH]
 
 new = Image.fromarray(new)
 new_draw = ImageDraw.Draw(new, mode="RGB")
-new_draw.ink = 255
 
 def highlight_room(room, color):
     room_y = room // 16
     room_x = room % 16
-    room_xy = [room_x*256, room_y*240, (room_x + 1)*256, (room_y + 1)*240]
+    room_xy = [room_x*ROOM_WIDTH, room_y*ROOM_HEIGHT, (room_x + 1)*ROOM_WIDTH, (room_y + 1)*ROOM_HEIGHT]
     new_draw.rectangle(room_xy, outline=color, width=8)
 
 def text_on_room(room, words):
     room_y = room // 16
     room_x = room % 16
-    text_y = (room_y * 240) + 120
-    text_x = (room_x * 256) + 128
+    text_y = (room_y * ROOM_HEIGHT) + 120
+    text_x = (room_x * ROOM_WIDTH) + 128
     new_draw.text((text_x, text_y), words, fill=(255, 255, 255), font_size=80, anchor="mm", align="center", stroke_width=3)
 
 highlight_room(start_new, "white")
