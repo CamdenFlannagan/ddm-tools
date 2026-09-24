@@ -42,7 +42,7 @@ for i in range(len(rooms)):
 
 if custom != "none":
     rooms = np.genfromtxt(custom, delimiter=",", dtype=str, encoding="utf-8").flatten()
-    rooms = [int(room, 16) for room in rooms]
+    rooms = [int("0xDD" if (room == "____") else room, 16) for room in rooms]
 
 end1 = 0x06
 end2 = 0xFE
@@ -60,6 +60,9 @@ down_drill_new = 0x00
 up_drill_new = 0x00
 double_jump_new = 0x00
 side_drill_new = 0x00
+
+def hex_str(x):
+    return format(x, '#04x')
 
 out = "scramble = {\n"
 for i in range(16):
@@ -81,19 +84,19 @@ for i in range(16):
         if rooms[curr_room] == side_drill:
             side_drill_new = curr_room
 
-        out += hex(rooms[16*i + j]).upper()
+        out += hex_str(rooms[16*i + j]).upper()
         if not (i == 16 and j == 16):
             out += ", "
     out +='\n'
 out += "}\n"
-out += "start = " + hex(start_new).upper() + "\n"
-out += "end1 = " + hex(end1_new).upper() + "\n"
-out += "end2 = " + hex(end2_new).upper() + "\n"
-out += "dig = " + hex(dig_new).upper() + "\n"
-out += "down_drill = " + hex(down_drill_new).upper() + "\n"
-out += "up_drill = " + hex(up_drill_new).upper() + "\n"
-out += "double_jump = " + hex(double_jump_new).upper() + "\n"
-out += "side_drill = " + hex(side_drill_new).upper() + "\n"
+out += "start = " + hex_str(start_new).upper() + "\n"
+out += "end1 = " + hex_str(end1_new).upper() + "\n"
+out += "end2 = " + hex_str(end2_new).upper() + "\n"
+out += "dig = " + hex_str(dig_new).upper() + "\n"
+out += "down_drill = " + hex_str(down_drill_new).upper() + "\n"
+out += "up_drill = " + hex_str(up_drill_new).upper() + "\n"
+out += "double_jump = " + hex_str(double_jump_new).upper() + "\n"
+out += "side_drill = " + hex_str(side_drill_new).upper() + "\n"
 # print(out)
 
 with open("ddm_randomizer.lua", "r+") as f:

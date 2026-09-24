@@ -1,5 +1,6 @@
 ﻿floor_touches = 0
 already_grounded = false
+down_drill = "none"
 
 restart = ""
 pleaseRestart = false
@@ -15,6 +16,10 @@ end
 emu.addMemoryCallback(function()
 
 	floor_touches = 0
+	already_grounded = false
+	down_drill = "none"
+	pleaseRestart = false
+	noRestartSaveYet = true
 
 end,
 emu.callbackType.exec,
@@ -32,6 +37,7 @@ emu.addMemoryCallback(function()
 	if pleaseRestart == true then
 		pleaseRestart = false
 		emu.loadSavestate(restart)
+		emu.drawString(0, 0, "failure", 0xFF0000, 0, 0, 30)
 	end
 
 end,
@@ -83,8 +89,8 @@ emu.addEventCallback(function()
 		floor_touches = 1
 	end
 	
-	emu.drawString(0, 8, down_drill)
-	emu.drawString(0, 0, floor_touches)
+	--emu.drawString(0, 8, down_drill)
+	--emu.drawString(0, 0, floor_touches)
 
 end,
 emu.eventType.startFrame)
