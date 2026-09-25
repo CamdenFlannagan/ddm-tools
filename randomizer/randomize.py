@@ -13,12 +13,14 @@ parser = argparse.ArgumentParser(description="Diggy Diggy Mole Randomizer")
 parser.add_argument("--seed", type=int, default=16, help="Change the seed to generate different maps.")
 parser.add_argument("--start", type=hex_int, default=0x77, help="Use hexcode 0xYX to pick a starting room. Y is top to bottom, 0 to F. X is left to right, 0 to F.")
 parser.add_argument("--custom", type=str, default="none", help="provide a .csv (comma seperated values) file of a custom arrangement of the map screens")
+parser.add_argument("--rom", type=str, default="none", help="provide a path to a ROM (.nes file) of Diggy Diggy Mole")
 
 args = parser.parse_args()
 
 seed = args.seed
 start = args.start
 custom = args.custom
+rom = args.rom
 
 random_state = seed
 
@@ -37,12 +39,14 @@ def swap(arr, i1, i2):
     arr[i1] = arr[i2]
     arr[i2] = temp
 
-for i in range(len(rooms)):
-    swap(rooms, i, random() & 0xFF )
 
-if custom != "none":
+if custom == "none":
+    for i in range(len(rooms)):
+        swap(rooms, i, random() & 0xFF )
+else:
     rooms = np.genfromtxt(custom, delimiter=",", dtype=str, encoding="utf-8").flatten()
     rooms = [int("0xDD" if (room == "____") else room, 16) for room in rooms]
+
 
 end1 = 0x06
 end2 = 0xFE
@@ -51,6 +55,7 @@ down_drill = 0x45
 up_drill = 0xBE
 double_jump = 0x79
 side_drill = 0x3C
+title = 0x1D
 
 start_new = start
 end1_new = 0x00
@@ -60,6 +65,9 @@ down_drill_new = 0x00
 up_drill_new = 0x00
 double_jump_new = 0x00
 side_drill_new = 0x00
+
+title_new = 0x00
+title_screen_exists = False
 
 def hex_str(x):
     return format(x, '#04x')
@@ -83,6 +91,9 @@ for i in range(16):
             double_jump_new = curr_room
         if rooms[curr_room] == side_drill:
             side_drill_new = curr_room
+        if rooms[curr_room] == title:
+            title_screen_exists = True
+            title_new = curr_room
 
         out += hex_str(rooms[16*i + j]).upper()
         if not (i == 16 and j == 16):
@@ -99,10 +110,64 @@ out += "double_jump = " + hex_str(double_jump_new).upper() + "\n"
 out += "side_drill = " + hex_str(side_drill_new).upper() + "\n"
 # print(out)
 
-with open("ddm_randomizer.lua", "r+") as f:
-    f.seek(0)
-    f.write(out)
+if rom == "none":
+    #----------------------------------------------
+    # Edit lua script
+    #----------------------------------------------
+    with open("ddm_randomizer.lua", "r+") as f:
+        f.seek(0)
+        f.write(out)
+else:
+    #----------------------------------------------
+    # Edit DDM rom file (.nes file)
+    #----------------------------------------------
+    assert True == title_screen_exists, "The title screen (original map room 0x1D) must be present somewhere on the map"
 
+    with open(rom, "rb") as f_old:
+        rom_data = f_old.read()
+
+        name = "../roms/"
+        if custom == "none":
+            name += "ddm_" + str(seed)
+        else:
+            # TODO parse custom map name and add to new rom file name
+            name += (custom.split("/")[len(custom.split("/")) - 1]).split(".")[0]
+            pass
+        name += "_" + hex(start) + ".nes"
+
+        with open(name, "wb+") as f_new:
+            f_new.write(rom_data)
+
+            f_new.seek(0x47d5) # which room contains the title screen
+            f_new.write(title_new.to_bytes(1))
+
+            f_new.seek(0x4a08)
+            f_new.write(start_new.to_bytes(1))
+
+            f_new.seek(0x7223) # address of the start of level data locations
+            room_addrs_2 = f_new.read(0x100)
+            room_addrs_2 = [room_addrs_2[i] for i in range(len(room_addrs_2))]
+            room_addrs_2_new = [bytes(0) for i in range(len(room_addrs_2))]
+            room_addrs_1 = f_new.read(0x100)
+            room_addrs_1 = [room_addrs_1[i] for i in range(len(room_addrs_1))]
+            room_addrs_1_new = [bytes(0) for i in range(len(room_addrs_1))]
+            room_zones = f_new.read(0x100)
+            room_zones = [room_zones[i] for i in range(len(room_zones))]
+            room_zones_new = [bytes(0) for i in range(len(room_zones))]
+
+            for i in range(NUM_ROOMS):
+                room_addrs_2_new[i] = room_addrs_2[rooms[i]]
+                room_addrs_1_new[i] = room_addrs_1[rooms[i]]
+                room_zones_new[i] = room_zones[rooms[i]]
+
+            f_new.seek(0x7223)
+            f_new.write(bytes(room_addrs_2_new))
+            f_new.write(bytes(room_addrs_1_new))
+            f_new.write(bytes(room_zones_new))
+
+#----------------------------------------------
+# Generate new map image
+#----------------------------------------------
 from PIL import Image, ImageDraw
 import numpy as np
 
