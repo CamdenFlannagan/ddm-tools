@@ -28,6 +28,6 @@ with open("../roms/ddm.nes", "rb") as f:
             out += format(room_data[16*i + j], "02X") + " "
         out += "\n"
 
-    print("PRGM ROM " + hex(room_addr))
+    print("Room in PRGM ROM at " + format(room_addr, "04X"))
     print(out)
     

@@ -131,13 +131,29 @@
 0xDC : number statue bottom right
 
 0xE1 : vine, I think 0xB6 vines need to have E1 where the right half of the vine hits the (dirt?) ceiling
-
+0xE2 : I think like the left half of 0xE1
 0xE3 : wood vertical into ceiling
 
 0xE4 : slime transition
 0xE5 : slime transition in upper half
 0xE6 : slime transition in lower half
 '''
+
+FLIP        = 0x02
+MOUSE       = 0x03
+SAVE        = 0x04
+IRON_PICK   = 0x05
+GOLD_PICK   = 0x06
+JADE_PICK   = 0x07
+OPAL_PICK   = 0x08
+RUBY_PICK   = 0x09
+MINE        = 0x0A
+SHROOM      = 0x0D
+ARENA       = 0x0F
+DWARF       = 0x10
+BOMB        = 0x13
+MAP         = 0x16
+WIN         = 0x18
 
 '''
 Loaded in things
@@ -146,17 +162,17 @@ Loaded in things
 0x02 : spike flippy guy
 0x03 : mouse
 0x04 : save point, invisible until touched
-0x05 : iron pick
-0x06 : gold pick
-0x07 : next pick
-0x08 : next pick
-0x09 : next pick
+0x05 : iron pick - dig
+0x06 : gold pick - down-drill
+0x07 : jade pick - up-drill
+0x08 : opal pick - double jump
+0x09 : ruby pick - side-drill
 0x0A : spike ball
 0x0B : heart
 0x0C : key
 0x0D : bounce shroom
 0x0E : 3 locks from chest
-0x0F : nothing?
+0x0F : spawn arena tiles everywhere tile 0x65 is on the screen
 0x10 : d.w.a.r.f.
 0x11 : nothing?
 0x12 : mole clone
