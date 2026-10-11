@@ -13,6 +13,9 @@ emu.addEventCallback(function()
 		-- draw x and y position of mouse
 		emu.drawString(0,0,"x, y: " .. hex(x) .. ", " .. hex(y))
 		
+		-- draw tile hexcode
+		emu.drawString(0,8, hex(emu.read(0x400 + (y*2*2*2*2 + x), emu.memType.nesMemory)))
+		
 		-- draw box around tile
 		emu.drawLine( 16*x-1,   16*y-1,   16*(x+1), 16*y-1   )
 		emu.drawLine( 16*(x+1), 16*y-1,   16*(x+1), 16*(y+1) )

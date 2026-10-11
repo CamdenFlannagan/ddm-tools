@@ -7,19 +7,11 @@ class Sprite():
     id: int
     position: int
 
-@dataclass
 class Room():
-    zone: int               # zone number [0, 4] inclusive
-    uncompressed: list[int] # list of 240 tiles
-    sprites: list[Sprite]
-
-@dataclass
-class Map():
-    name: str               # used to name new rom file
-    title: int              # hexcode location of title screen
-    start: int              # hexcode location of the screen you start falling from
-    picks: int              # bitfield of picks you start the game with        
-    rooms: list[Room]
+    def __init__(self, zone: int, uncompressed: int, sprites: list[Sprite]):
+        self.zone = zone
+        self.uncompressed = uncompressed
+        self.sprites = sprites
 
 class Map():
     def __init__(self, title: int, start: int, picks: int):
@@ -29,4 +21,7 @@ class Map():
         self.rooms = [None for i in range(NUM_ROOMS)]
 
     def add_room(self, room: Room, location: int):
+        if len(room.sprites) > 14:
+            print("Warning, too many sprites in room " + hex(location) + ". 15th sprite is buggy, and any more won't spawn. Truncating to 14 sprites")
+            room.sprites = room.sprites[:14]
         self.rooms[16*(location >> 4) + (location & 0x0F)] = room

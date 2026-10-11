@@ -38,6 +38,8 @@
 0x31 : bush edge down
 0x32 : bush corner down right
 
+0x33 : column broken top
+
 0x34 : temple skull left
 0x35 : temple skull right
 0x36 : temple left
@@ -67,9 +69,12 @@
 0x4C : background bricks
 0x4D : background bricks
 0x4E : background bricks
+0x4F : background bricks
 
 0x50 : gear
-0x51 : rope
+0x51 : rope vertical
+0x52 : two ropes vertical
+0x53 : rope horizontal
 
 0x54 : statue top left
 0x55 : statue top right
@@ -84,9 +89,14 @@
 0x5D : minecart
 0x5E : crystal
 
+0x5F : treasure chest top left
+0x60 : treasure chest top right
+0x61 : treasure chest bottom left
+0x62 : treasure chest bottom right
+
 0x63 : save statue bottom left
 0x64 : save statue bottom right
-0x65 : arena tile
+0x65 : arena tile (needs sprite 0x0F in room to be active)
 
 0x66 : skeleton head
 0x67 : skeleton spine
@@ -102,17 +112,24 @@
 0x72 : oil barrel centered
 
 0x73 : maybe background bricks
+0x74 : maybe background bricks
 
 0x75 : big brick left end
 0x76 : big brick right end
 0x77 : big brick left end's left half
 0x78 : big brick middle
 
+
 0x7D : dirt T / B / L /  
 0x7F : dirt T / B /   / R
 
+
 0xB0 : oil barrel's left half
 0xB1 : oil barrel's right half
+0xB2 : TNT box
+
+0xB4 : bomb stand (or pile of rope) left
+0xB5 : bomb stand (or pile of rope) right
 
 0xB6 : grown vine up between this tile and the one to the right, also see vine 0xE1
 
@@ -130,6 +147,9 @@
 0xDB : number statue bottom left
 0xDC : number statue bottom right
 
+0xDD : basin statue bottom left
+0xDE : basin status bottom right
+
 0xE1 : vine, I think 0xB6 vines need to have E1 where the right half of the vine hits the (dirt?) ceiling
 0xE2 : I think like the left half of 0xE1
 0xE3 : wood vertical into ceiling
@@ -139,6 +159,7 @@
 0xE6 : slime transition in lower half
 '''
 
+# TODO finish sprite list
 FLIP        = 0x02
 MOUSE       = 0x03
 SAVE        = 0x04

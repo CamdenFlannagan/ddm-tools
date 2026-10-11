@@ -15,7 +15,50 @@ EMPTY_ROOM      =  ROOM_DATA_START
 
 NUM_ROOMS = 256
 
-rom = "../roms/ddm.nes" # TODO replace with command line argument
+# tiles that you cannot perform a room transition through
+no_transition = set([
+    *[i for i in range(0x01, 0x14)], # dirts
+    *[i for i in range(0x18, 0x27)], # metals
+    *[i for i in range(0x7d, 0x82)], # dirts
+    0xAF,                            # title grass
+    *[i for i in range(0xb8, 0xd7)], # dirts
+])
+
+'''
+when drawing the in-game map:
+up is bit 0
+down is bit 1
+left is bit 2
+right is bit 3
+
++
+
+zone 00 is C1
+zone 01
+
++
+
+Pallet 0
+Green = Green
+Yellow = Yellow
+Purple = Purple
+
+Pallete 1
+Green = Yellow
+Yellow = Purple
+Purple = Red
+
+Pallete 2
+Green = Purple
+Yellow = Red
+Purple = Green
+
+Pallete 3
+Green = Red
+Yellow = Green
+Purple = Yellow
+
+'''
 
 def hack_da_rom(map: Map, original_rom: str, new_rom: str):
     bytes_used = 0
