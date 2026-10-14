@@ -1,5 +1,5 @@
 from classes import Sprite, Room, Map
-from romhack.hack_rom import hack_da_rom
+from make_map import hack_da_rom
 from common_rooms import title
 import codes
 

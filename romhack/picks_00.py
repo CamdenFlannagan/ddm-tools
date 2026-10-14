@@ -1,6 +1,6 @@
 from common_rooms import empty, title
 from classes import Sprite, Room, Map
-from romhack.hack_rom import add_room, hack_da_rom
+from make_map import add_room, hack_da_rom
 
 NUM_ROOMS = 256
 
