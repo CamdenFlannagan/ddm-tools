@@ -6,6 +6,21 @@ from in_game_map import in_game_map
 # CPU Memory Constants
 # --------------------------------------------- #
 CPU_MEM_OFFSET        = -0x7FF0 # address in cpu memory + CPU_MEM_OFFSET = where in rom file is data
+
+CHEST_ROOM_LOCATION   =  0xcb38
+
+# MAP_CHEST_POSITION is 0xdfbe
+MAP_CHEST_TILE        =  0xdfa5
+# MAP_CHEST_ORIENTATION_AND_COLOR is 0xdfcb
+
+# MAP_BOMB_POSITION is 0xdfa1
+MAP_BOMB_TILE         =  0xdfc2
+# MAP_BOMB_ORIENTATION_AND_COLOR is 0xdfa9
+
+# MAP_DOTS_POSITIONS starts 0xf20a, 9 bytes for 9 positions
+MAP_DOTS_TILE         =  0xdfe0
+# MAP_DOTS_ORIENTATION_AND_COLOR is 0xdfef
+
 ROOM_ADDR_LOWER       =  0xf213
 ROOM_ADDR_UPPER       =  0xf313
 ROOM_ZONE             =  0xf413
@@ -20,9 +35,13 @@ MAP_PALLETE_DATA_LEN  =  0x20
 # PRG ROM Constants
 # --------------------------------------------- #
 PRG_ROM_OFFSET  =  0x0010
+
 ROOM_DATA_START =  0x9426
 EMPTY_ROOM      =  ROOM_DATA_START
 
+# --------------------------------------------- #
+# Other Constants
+# --------------------------------------------- #
 NUM_ROOMS = 256
 
 def hack_da_rom(map: Map, original_rom: str, new_rom: str, make_in_game_map: bool = False):
@@ -70,6 +89,7 @@ def hack_da_rom(map: Map, original_rom: str, new_rom: str, make_in_game_map: boo
     # --------------------------------- #
     # Fill with custom rooms
     # --------------------------------- #
+    some_empty_room = 0x00
     for i in range(NUM_ROOMS):
         if map.rooms[i] == None: # empty room
             rom_hacked.seek(ROOM_ZONE + CPU_MEM_OFFSET + i)
@@ -78,6 +98,7 @@ def hack_da_rom(map: Map, original_rom: str, new_rom: str, make_in_game_map: boo
             rom_hacked.write((EMPTY_ROOM & 0xFF).to_bytes(1))
             rom_hacked.seek(ROOM_ADDR_UPPER + CPU_MEM_OFFSET + i)
             rom_hacked.write(((EMPTY_ROOM >> 8) & 0xFF).to_bytes(1))
+            some_empty_room = i
         else:
             rom_hacked.seek(ROOM_ZONE + CPU_MEM_OFFSET + i)
             rom_hacked.write(map.rooms[i].zone.to_bytes(1))
@@ -92,10 +113,27 @@ def hack_da_rom(map: Map, original_rom: str, new_rom: str, make_in_game_map: boo
             rom_hacked.write(data)
             room_data_cursor += len(data)
 
+    # --------------------------------- #
+    # Set the chest room to be some
+    # empty room, to avoid the fadeout
+    # transition bothering the gameplay
+    # --------------------------------- #
+    rom_hacked.seek(CHEST_ROOM_LOCATION + CPU_MEM_OFFSET)
+    rom_hacked.write(some_empty_room.to_bytes(1))
+
     # ----------------------------------------- #
     # Make in-game map match our custom map
     # ----------------------------------------- #
     if make_in_game_map:
+        # make all of the usual map sprites invisible
+        rom_hacked.seek(MAP_BOMB_TILE + CPU_MEM_OFFSET)
+        rom_hacked.write(0x00.to_bytes(1))
+        rom_hacked.seek(MAP_CHEST_TILE + CPU_MEM_OFFSET)
+        rom_hacked.write(0x00.to_bytes(1))
+        rom_hacked.seek(MAP_DOTS_TILE + CPU_MEM_OFFSET)
+        rom_hacked.write(0x00.to_bytes(1))
+
+        # draw our new map!
         map_tile_data, map_pallete_data = in_game_map(map)
         rom_hacked.seek(MAP_TILE_DATA + CPU_MEM_OFFSET)
         rom_hacked.write(bytes(map_tile_data))
