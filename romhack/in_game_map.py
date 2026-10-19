@@ -184,8 +184,7 @@ def in_game_map(map: Map):
             for room_idx, room in enumerate(rooms):
                 assert room < 0x100, "Room OOB. room: " + hex(room) + ", quad:" + quad + ", pal idx: " + pallete_data_idx
 
-                actual_room = map.rooms[room]
-                if actual_room == None:
+                if map.rooms[room] == None:
                     map_tile_data[room] = 0x00
                 else:
                     map_tile_data[room] = 0xC1 + room_edges(map.rooms[room]) + (0x10*color_idxs[room_idx])

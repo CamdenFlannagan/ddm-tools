@@ -29,7 +29,7 @@ MAP_TILE_DATA         =  0xf513
 MAP_TILE_DATA_LEN     =  0x100
 
 MAP_PALLETE_DATA      =  0xf613
-MAP_PALLETE_DATA_LEN  =  0x20
+MAP_PALLETE_DATA_LEN  =  0x14
 
 # --------------------------------------------- #
 # PRG ROM Constants
@@ -45,7 +45,7 @@ EMPTY_ROOM      =  ROOM_DATA_START
 NUM_ROOMS = 256
 
 def hack_da_rom(map: Map, original_rom: str, new_rom: str, make_in_game_map: bool = False):
-    bytes_used = 0
+    bytes_used = 0 # keep track of how many bytes we've used for level data, just for fun
 
     # ----------------------------------------- #
     # Create new rom file
