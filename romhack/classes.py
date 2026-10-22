@@ -14,11 +14,14 @@ class Room():
         self.sprites = sprites
 
 class Map():
-    def __init__(self, title: int, start: int, picks: int):
+    def __init__(self, title: Room, start: int, picks: int):
         self.title = title
         self.start = start
         self.picks = picks
         self.rooms = [None for i in range(NUM_ROOMS)]
+
+    def set_title(self, title: Room):
+        self.title = title
 
     def add_room(self, room: Room, location: int):
         if len(room.sprites) > 14:

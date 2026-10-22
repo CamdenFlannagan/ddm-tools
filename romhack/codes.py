@@ -1,5 +1,4 @@
 '''
-# ----- BASICS ----- #
 0x00 : air
 
 0x14 : spike up
@@ -175,6 +174,13 @@ DWARF       = 0x10
 BOMB        = 0x13
 MAP         = 0x16
 WIN         = 0x18
+
+'''
+some sprites ignore the position you provide and do their own thing
+you don't need to use this constant, you can put any number for these sprites,
+I just think it makes the code prettier
+'''
+NO_POSITION = 0x00
 
 '''
 Loaded in things
