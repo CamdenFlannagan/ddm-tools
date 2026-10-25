@@ -1,6 +1,6 @@
 from common_rooms import empty, title
 from classes import Sprite, Room, Map
-from make_map import add_room, hack_da_rom
+from hack_rom import hack_da_rom
 
 NUM_ROOMS = 256
 
@@ -59,15 +59,16 @@ spike_gap = ([
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xd5, 0x00, 0x00, 0xd5, 0x00, 0x00, 0x00, 0x00, 0x00,
 ], [])
 
-map = Map(name="../roms/picks_00.nes", title=0x1D, start=0x40, picks=0x00, rooms=[None for i in range(NUM_ROOMS)])
+map = Map(start=0x40, picks=0x00)
 
 # entrance
-add_room(map, Room(location=0x1D, zone=0x00, uncompressed=title, sprites=[Sprite(id=0x12, position=0x3B)]))
-add_room(map, Room(location=0x40, zone=0x00, uncompressed=empty, sprites=[Sprite(id=0x01, position=0x00)]))
-add_room(map, Room(location=0x50, zone=0x00, uncompressed=begin[0], sprites=begin[1]))
-add_room(map, Room(location=0x51, zone=0x00, uncompressed=spikes[0], sprites=spikes[1]))
-add_room(map, Room(location=0x4F, zone=0x00, uncompressed=spike_gap[0], sprites=spike_gap[1]))
+map.set_title(Room(zone=0x00, uncompressed=title, sprites=[Sprite(id=0x12, position=0x3B)]))
 
-bytes_used = hack_da_rom(map, "../roms/ddm.nes")
+map.add_room(Room(zone=0x00, uncompressed=empty, sprites=[Sprite(id=0x01, position=0x00)]), 0x40)
+map.add_room(Room(zone=0x00, uncompressed=begin[0], sprites=begin[1]), 0x50)
+map.add_room(Room(zone=0x00, uncompressed=spikes[0], sprites=spikes[1]), 0x51)
+map.add_room(Room(zone=0x00, uncompressed=spike_gap[0], sprites=spike_gap[1]), 0x4f)
+
+bytes_used = hack_da_rom(map, "../roms/ddm_pick_return.nes", "../roms/picks_00.nes")
 
 print("bytes used: " + str(bytes_used))

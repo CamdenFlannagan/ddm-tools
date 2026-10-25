@@ -217,10 +217,9 @@ shroom_zoom_0f = Room(0x01, [
     Sprite(codes.SHROOM, 0xb8),
 ])
 
-map = Map(title=0x00, start=0x48, picks=0x0F)
+map = Map(start=0x48, picks=0x0F)
 
-map.add_room(Room(zone=0x00, uncompressed=title, sprites=[Sprite(id=0x12, position=0x3B)]), 0x00)
-map.add_room(Room(zone=0x00, uncompressed=empty, sprites=[Sprite(id=0x01, position=0x00)]), 0x40)
+map.set_title(Room(zone=0x00, uncompressed=title, sprites=[Sprite(id=0x12, position=0x3B)]))
 
 map.add_room(enter, 0x48)
 map.add_room(give_ruby, 0x49)
@@ -232,12 +231,6 @@ map.add_room(smellevator2, 0x5b)
 map.add_room(smellevator3, 0x4b)
 map.add_room(smell_ya_later, 0x3b)
 map.add_room(shroom_zoom_0f, 0x3c)
-
-tiles, palletes = in_game_map(map)
-print("Map Tile Data:")
-print_data(tiles)
-print("Map Pallete Data:")
-print_data(palletes)
 
 # ------------------------------------ #
 # Make a rom with the new map!

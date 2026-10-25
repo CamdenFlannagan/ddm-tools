@@ -59,8 +59,14 @@ def hack_da_rom(map: Map, original_rom: str, new_rom: str, make_in_game_map: boo
     # ---------------------------------------- #
     # Set the title screen
     # ----------------------------------------- #
+    some_empty_room = 0x00
+    for i in range(NUM_ROOMS):
+        if map.rooms[i] == None:
+            some_empty_room = i
+            break
+    map.rooms[some_empty_room] = map.title
     rom_hacked.seek(0xC7C5 + CPU_MEM_OFFSET) # which room contains the title screen. 0xC7C5 in CPU Memory
-    rom_hacked.write(map.title.to_bytes(1))
+    rom_hacked.write(some_empty_room.to_bytes(1))
 
     # ----------------------------------------- #
     # Set the starting room
@@ -89,7 +95,6 @@ def hack_da_rom(map: Map, original_rom: str, new_rom: str, make_in_game_map: boo
     # --------------------------------- #
     # Fill with custom rooms
     # --------------------------------- #
-    some_empty_room = 0x00
     for i in range(NUM_ROOMS):
         if map.rooms[i] == None: # empty room
             rom_hacked.seek(ROOM_ZONE + CPU_MEM_OFFSET + i)
@@ -98,7 +103,6 @@ def hack_da_rom(map: Map, original_rom: str, new_rom: str, make_in_game_map: boo
             rom_hacked.write((EMPTY_ROOM & 0xFF).to_bytes(1))
             rom_hacked.seek(ROOM_ADDR_UPPER + CPU_MEM_OFFSET + i)
             rom_hacked.write(((EMPTY_ROOM >> 8) & 0xFF).to_bytes(1))
-            some_empty_room = i
         else:
             rom_hacked.seek(ROOM_ZONE + CPU_MEM_OFFSET + i)
             rom_hacked.write(map.rooms[i].zone.to_bytes(1))

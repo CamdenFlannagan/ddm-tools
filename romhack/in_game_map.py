@@ -62,7 +62,7 @@ class Quad():
 # tiles that you cannot perform a room transition through
 no_transition = set([
     *[i for i in range(0x01, 0x14)], # dirts
-    *[i for i in range(0x18, 0x27)], # metals
+    *[i for i in range(0x18, 0x28)], # metals
     *[i for i in range(0x7d, 0x82)], # dirts
     0xAF,                            # title grass
     *[i for i in range(0xb8, 0xd7)], # dirts

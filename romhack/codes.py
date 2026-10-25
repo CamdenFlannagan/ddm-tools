@@ -100,6 +100,7 @@
 0x66 : skeleton head
 0x67 : skeleton spine
 0x68 : skeleton tail
+0x69 : skeleton ribs
 0x6A : skeleton fin
 0x6B : broken bone
 0x6C : shell
@@ -173,6 +174,7 @@ ARENA       = 0x0F
 DWARF       = 0x10
 BOMB        = 0x13
 MAP         = 0x16
+SPARKLES    = 0x17
 WIN         = 0x18
 
 '''
