@@ -145,6 +145,13 @@ def hack_da_rom(map: Map, original_rom: str, new_rom: str, make_in_game_map: boo
         rom_hacked.write(bytes(map_pallete_data))
 
     # ----------------------------------------- #
+    # Set the title back to empty in case anyone
+    # is trying to do a merge with this map
+    # later
+    # ----------------------------------------- #
+    map.rooms[some_empty_room] = None
+
+    # ----------------------------------------- #
     # Close new rom file
     # ----------------------------------------- #
     rom_hacked.close()

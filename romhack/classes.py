@@ -39,7 +39,7 @@ class Map():
             if self.rooms[i] == None:
                 self.rooms[i] = other.rooms[i]
             else:
-                assert other.rooms[i] == None, "Map merge conflict on room " + hex(i)
+                assert other.rooms[i] == None, "Map merge conflict on room " + hex(i) + "\n" + print_data(other.rooms[i].uncompressed)
 
     # shift the whole map. useful to line up two maps before merging.
     # For example, if you wanted to shift everything so that room 0xPP
@@ -56,4 +56,4 @@ def print_data(data):
             out += '\n'
         else:
             out += " "
-    print(out)
+    return out

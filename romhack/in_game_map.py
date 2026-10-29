@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from classes import Sprite, Room, Map
+from classes import Sprite, Room, Map, print_data
 
 MAP_TILE_DATA_LEN    = 0x100
 MAP_PALLETE_DATA_LEN = 0x14
@@ -98,7 +98,7 @@ def room_edges(room: Room):
             result += 8
             break
 
-    assert result > 0, "this room has NO transitionable edges: " + data
+    assert result > 0, "this room has NO transitionable edges: " + print_data(data)
 
     return result - 1 # minus one because there is no tile for a room with no edges
 
