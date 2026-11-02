@@ -1,11 +1,15 @@
 from compress_room import compress
 from classes import Sprite, Room, Map
 from in_game_map import in_game_map
+from opening_scroll_text import OpeningScroll
 
 # --------------------------------------------- #
 # CPU Memory Constants
 # --------------------------------------------- #
 CPU_MEM_OFFSET        = -0x7FF0 # address in cpu memory + CPU_MEM_OFFSET = where in rom file is data
+
+OPENING_SCROLL_TEXT         = 0xc611
+MAX_OPENING_SCROLL_TEXT_LEN = 0x159
 
 CHEST_ROOM_LOCATION   =  0xcb38
 
@@ -44,7 +48,7 @@ EMPTY_ROOM      =  ROOM_DATA_START
 # --------------------------------------------- #
 NUM_ROOMS = 256
 
-def hack_da_rom(map: Map, original_rom: str, new_rom: str, make_in_game_map: bool = False):
+def hack_da_rom(map: Map, original_rom: str, new_rom: str, make_in_game_map: bool = False, opening_scroll: OpeningScroll = None):
     bytes_used = 0 # keep track of how many bytes we've used for level data, just for fun
 
     # ----------------------------------------- #
@@ -143,6 +147,10 @@ def hack_da_rom(map: Map, original_rom: str, new_rom: str, make_in_game_map: boo
         rom_hacked.write(bytes(map_tile_data))
         rom_hacked.seek(MAP_PALLETE_DATA + CPU_MEM_OFFSET)
         rom_hacked.write(bytes(map_pallete_data))
+
+    if opening_scroll != None:
+        rom_hacked.seek(OPENING_SCROLL_TEXT + CPU_MEM_OFFSET)
+        rom_hacked.write(opening_scroll.to_bytes())
 
     # ----------------------------------------- #
     # Set the title back to empty in case anyone

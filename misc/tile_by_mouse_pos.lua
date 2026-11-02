@@ -7,7 +7,7 @@ emu.addEventCallback(function()
 
 	mouse = emu.getMouseState()
 	if mouse.left then
-		--emu.drawString(0,16, "true x, y"..mouse.x.." "..mouse.y)
+		emu.drawString(0,16, "true x"..hex(mouse.x).." y"..hex(mouse.y))
 	
 		x = mouse.x // 16
 		y = mouse.y // 16

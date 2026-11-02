@@ -3,7 +3,6 @@ from dataclasses import dataclass
 
 NUM_ROOMS = 256
 
-
 @dataclass
 class Sprite():
     id: int
