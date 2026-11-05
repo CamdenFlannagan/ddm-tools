@@ -167,9 +167,18 @@ class CenteredIntroText:
         i = 0
         while i < len(full_msg):
             if len(inter[i]) > 0:
+                # add all commands but add only the FINAL cursor position command per group
+                cursor_poses = num_instances(inter[i], CursorPosition)
+                cursor_pos = 1
                 for command in inter[i]:
-                    scroll.append(command)
-                
+                    if isinstance(command, CursorPosition):
+                        if cursor_pos == cursor_poses:
+                            scroll.append(command)
+                        cursor_pos += 1
+                    else:
+                        scroll.append(command)
+
+                # figure out the text command
                 skip_space = 0
                 if contains_instance(inter[i], CursorPosition) and full_msg[i] == ' ':
                     skip_space = 1
