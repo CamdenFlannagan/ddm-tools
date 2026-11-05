@@ -31,21 +31,46 @@ picks_00.map.rooms[picks_00.map.start] = None
 picks_00.map.shift(MAP_00_START - 0x50)
 map.merge(picks_00.map)
 
-opening_scroll = OpeningScroll([
-    TextSpeed(1),
-    CursorPosition(0, 1),
-    Text('hey!'),
-    Pause(16),
-    Text('i\'m wondering if this works!'),
-    Pause(32),
-    CursorPosition(0, 3),
-    Text('yeah'),
-    TextSpeed(16),
+# opening_scroll = OpeningScroll([
+#     TextSpeed(1),
+#     CursorPosition(0, 1),
+#     Text('hey!'),
+#     Pause(16),
+#     Text('i\'m wondering if this works!'),
+#     Pause(32),
+#     CursorPosition(0, 3),
+#     Text('yeah'),
+#     TextSpeed(16),
+#     Text('...'),
+#     Pause(32),
+#     TextSpeed(1),
+#     Text('it does!'),
+# ])
+
+opening_scroll = CenteredIntroText([
+    TextSpeed(5),
+    Text('Wow'),
+    TextSpeed(10),
     Text('...'),
-    Pause(32),
-    TextSpeed(1),
-    Text('it does!'),
-])
+    NewLine(),
+    Text(' '),
+    NewLine(),
+    TextSpeed(3),
+    Text('I didn\'t think it would take me three days to make a text centering algorithm, '),
+    Pause(8),
+    Text('but here we are.'),
+    Pause(26),
+    NewLine(),
+    Text(' '),
+    NewLine(),
+    Text('Well, '),
+    Pause(5),
+    Text('I certainly wasn\'t locked in for those three days, '),
+    Pause(10),
+    Text('but still it took way more effort than i expected.'),
+]).to_scroll()
+
+print(opening_scroll)
 
 bytes_used = hack_da_rom(
     map,

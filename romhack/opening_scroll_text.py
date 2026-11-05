@@ -17,6 +17,9 @@ class Pause:
     def to_bytes(self):
         return b'\x80' + self.x.to_bytes(1)
 
+    def __str__(self):
+        return 'Pause(' + str(self.x) + ')'
+
 class TextSpeed:
     def __init__(self, x: int):
         assert x >= 0 and x < 256, "text speed argument must be 1 byte"
@@ -25,18 +28,24 @@ class TextSpeed:
     def to_bytes(self):
         return b'\x81' + self.x.to_bytes(1)
 
+    def __str__(self):
+        return 'TextSpeed(' + str(self.x) + ')'
+
 class CursorPosition:
     '''
     place the cursor at tile x, y (tiles are 8 by 8 pixel squares)
     '''
     def __init__(self, x: int, y: int):
-        assert x >= 0 and x < 32
-        assert y >= 0 and y < 30
+        assert x >= 0 and x < 32, 'you tried ' + str(x)
+        assert y >= 0 and y < 30, 'you tried ' + str(y)
         self.x = x
         self.y = y
 
     def to_bytes(self):
         return b'\x7e' + (0x2000 + 32*self.y + self.x).to_bytes(2, 'big')
+
+    def __str__(self):
+        return 'CursorPosition(' + str(self.x) + ', ' + str(self.y) + ')'
 
 class Text:
     def __init__(self, text: str):
@@ -44,6 +53,9 @@ class Text:
 
     def to_bytes(self):
         return self.text.encode(encoding='ascii')
+
+    def __str__(self):
+        return 'Text(' + self.text + ')'
 
 
 
@@ -61,47 +73,119 @@ class OpeningScroll:
         assert len(out) <= MAX_OPENING_SCROLL_LEN, 'opening scroll must use fewer than ' + MAX_OPENING_SCROLL_LEN + ' bytes'
         return out
 
-'''
-def line_it_up_bro(text):
-    assert len(text) <= MAX_WIDTH, "less than 28 chars per line please"
-    x = 16 - (len(text) // 2)
-    y = 2 + 2*line_num
+    def __str__(self):
+        return str([str(command) for command in self.commands])
 
-    scroll.append(CursorPosition(x, y))
-    scroll.append(Text(text))
-    
-    line_num += 1
-'''
 
 '''
 automatically center text for convenience.
-use the \n (newline) character for new lines instead of using CursorPosition.
+use the NewLine class for new lines instead of using CursorPosition.
 the text will automatically move to a new line if it gets longer than the maximum width
 '''
+
 MAX_WIDTH = 28
+
+class NewLine: # lol ¯\_(ツ)_/¯ it works
+    pass
+
 class CenteredIntroText:
-    def __init__(self, commands: list[ Pause | TextSpeed | Text ]):
+    def __init__(self, commands: list[ Pause | TextSpeed | NewLine | Text ]):
         self.commands = commands
 
-    def to_bytes(self):
-        scroll: list[ Pause | TextSpeed | CursorPosition | Text ] = []
+    def to_scroll(self):
 
-        curr_line_num = 0
-        curr_line_length = 0
-        curr_text_segment = ''
-        commands_waiting_to_be_pooped = []
+        inter = [] # intermediate structure to make transition from input to scroll simpler
+        full_msg = ''
 
-        # yada yada yada
+        # make the structure
         for command in self.commands:
-            if command.isinstance(Pause):
-                commands_waiting_to_be_pooped.append(command)
+            if isinstance(command, Text):
+                for char in command.text:
+                    full_msg += char
+        i = 0
+        inter = [[] for j in range(len(full_msg))]
+        for command in self.commands:
+            if isinstance(command, Text):
+                for char in command.text:
+                    i += 1
+            else:
+                inter[i].append(command)
 
-            if command.isinstance(TextSpeed):
-                commands_waiting_to_be_pooped.append(command)
+        # add cursor position commands
+        i = 0
+        curr_line_len = 0
+        inter[0].append(CursorPosition(0, 0)) # first text always needs cursor position
+        while i < len(full_msg):
+            for j in range(len(inter[i])):
+                if isinstance(inter[i][j], NewLine):
+                    inter[i][j] = CursorPosition(0, 0)
+                    curr_line_len = 0
+            if curr_line_len >= MAX_WIDTH:
+                while full_msg[i] != ' ':
+                    i -= 1
+                inter[i].append(CursorPosition(0, 0))
+                curr_line_len = 0
+            else:
+                curr_line_len += 1
 
-        return OpeningScroll(scroll).to_bytes()
+            i += 1
+
+        def contains_instance(stuff: list, what_is_it: type):
+            for thing in stuff:
+                if isinstance(thing, what_is_it):
+                    return True
+            return False
+
+        def num_instances(stuff: list, what_is_it: type):
+            count = 0
+            for thing in stuff:
+                if isinstance(thing, what_is_it):
+                    count += 1
+            return count
+
+        # set all the cursor positions
+        line_num = 0
+        for i in range(len(full_msg)):
+            for j in range(len(inter[i])):
+                if isinstance(inter[i][j], CursorPosition):
+                    # then set CurPos's x and y based on how far away the next CurPos is
+                    # exclude spaces on edges of lines
+                    look_ahead = i + 1
+                    while look_ahead < len(full_msg):
+                        if contains_instance(inter[look_ahead], CursorPosition):
+                            break
+                        look_ahead += 1
+                    line_len = look_ahead - i - (1 if full_msg[i] == ' ' else 0)
+
+                    inter[i][j].x = 16 - (line_len // 2)
+                    inter[i][j].y = 2 + 2*line_num
+
+                    line_num += 1
+
+        # add text and make scroll!        
+        scroll: list[ CursorPosition | TextSpeed | Pause | Text ] = []
+        i = 0
+        while i < len(full_msg):
+            if len(inter[i]) > 0:
+                for command in inter[i]:
+                    scroll.append(command)
+                
+                skip_space = 0
+                if contains_instance(inter[i], CursorPosition) and full_msg[i] == ' ':
+                    skip_space = 1
+
+                start = i
+                i += 1
+                while i < len(full_msg) and len(inter[i]) == 0:
+                    i += 1
+
+                scroll.append(Text(full_msg[start + skip_space : i]))
+            else:
+                i += 1
+
+        return OpeningScroll(scroll)
 
 '''
-Pickaxe Get Messages
+Messages for getting a pickaxe
 60 xx yy <-- Place the cursor at pixel xx, yy
 '''
