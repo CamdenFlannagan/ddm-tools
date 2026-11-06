@@ -144,6 +144,7 @@ class CenteredIntroText:
             return count
 
         # set all the cursor positions
+        from math import ceil
         line_num = 0
         for i in range(len(full_msg)):
             for j in range(len(inter[i])):
@@ -157,7 +158,7 @@ class CenteredIntroText:
                         look_ahead += 1
                     line_len = look_ahead - i - (1 if full_msg[i] == ' ' else 0)
 
-                    inter[i][j].x = 16 - (line_len // 2)
+                    inter[i][j].x = 16 - ceil(line_len / 2)
                     inter[i][j].y = 2 + 2*line_num
 
                     line_num += 1
