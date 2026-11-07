@@ -1,54 +1,19 @@
 from compress_room import compress
 from classes import Sprite, Room, Map
 from in_game_map import in_game_map
-from opening_scroll_text import OpeningScroll
+from game_text import *
+from addresses import *
 
-# --------------------------------------------- #
-# CPU Memory Constants
-# --------------------------------------------- #
-CPU_MEM_OFFSET        = -0x7FF0 # address in cpu memory + CPU_MEM_OFFSET = where in rom file is data
-
-OPENING_SCROLL_TEXT         = 0xc611
-MAX_OPENING_SCROLL_TEXT_LEN = 0x159
-
-CHEST_ROOM_LOCATION   =  0xcb38
-
-# MAP_CHEST_POSITION is 0xdfbe
-MAP_CHEST_TILE        =  0xdfa5
-# MAP_CHEST_ORIENTATION_AND_COLOR is 0xdfcb
-
-# MAP_BOMB_POSITION is 0xdfa1
-MAP_BOMB_TILE         =  0xdfc2
-# MAP_BOMB_ORIENTATION_AND_COLOR is 0xdfa9
-
-# MAP_DOTS_POSITIONS starts 0xf20a, 9 bytes for 9 positions
-MAP_DOTS_TILE         =  0xdfe0
-# MAP_DOTS_ORIENTATION_AND_COLOR is 0xdfef
-
-ROOM_ADDR_LOWER       =  0xf213
-ROOM_ADDR_UPPER       =  0xf313
-ROOM_ZONE             =  0xf413
-
-MAP_TILE_DATA         =  0xf513
-MAP_TILE_DATA_LEN     =  0x100
-
-MAP_PALLETE_DATA      =  0xf613
-MAP_PALLETE_DATA_LEN  =  0x14
-
-# --------------------------------------------- #
-# PRG ROM Constants
-# --------------------------------------------- #
-PRG_ROM_OFFSET  =  0x0010
-
-ROOM_DATA_START =  0x9426
-EMPTY_ROOM      =  ROOM_DATA_START
-
-# --------------------------------------------- #
-# Other Constants
-# --------------------------------------------- #
 NUM_ROOMS = 256
 
-def hack_da_rom(map: Map, original_rom: str, new_rom: str, make_in_game_map: bool = False, opening_scroll: OpeningScroll = None):
+def hack_da_rom(
+        map: Map,
+        original_rom: str,
+        new_rom: str,
+        make_in_game_map: bool = False,
+        opening_scroll: OpeningScroll = None,
+        pickaxe_text: PickaxeText = None):
+    
     bytes_used = 0 # keep track of how many bytes we've used for level data, just for fun
 
     # ----------------------------------------- #
@@ -151,6 +116,10 @@ def hack_da_rom(map: Map, original_rom: str, new_rom: str, make_in_game_map: boo
     if opening_scroll != None:
         rom_hacked.seek(OPENING_SCROLL_TEXT + CPU_MEM_OFFSET)
         rom_hacked.write(opening_scroll.to_bytes())
+
+    if pickaxe_text != None:
+        rom_hacked.seek(IRON_TEXT + CPU_MEM_OFFSET)
+        rom_hacked.write(pickaxe_text.to_bytes())
 
     # ----------------------------------------- #
     # Set the title back to empty in case anyone

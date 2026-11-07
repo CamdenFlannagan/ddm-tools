@@ -109,7 +109,11 @@ class CenteredIntroText:
                 for char in command.text:
                     i += 1
             else:
-                inter[i].append(command)
+                # people can add commands after their final text, but there's
+                # no reason to cause they wouldn't have any observable effects.
+                # so I'm just going to pretend they don't exist
+                if i < len(inter):
+                    inter[i].append(command)
 
         # add cursor position commands
         i = 0
@@ -163,6 +167,8 @@ class CenteredIntroText:
 
                     line_num += 1
 
+        # print([(full_msg[i], inter[i]) for i in range(len(full_msg))])
+        
         # add text and make scroll!        
         scroll: list[ CursorPosition | TextSpeed | Pause | Text ] = []
         i = 0
@@ -195,7 +201,91 @@ class CenteredIntroText:
 
         return OpeningScroll(scroll)
 
-'''
-Messages for getting a pickaxe
-60 xx yy <-- Place the cursor at pixel xx, yy
-'''
+from addresses import *
+
+class PickaxeText:     
+    def __init__(self, iron: str, gold: str, jade: str, opal: str, ruby: str):
+        self.iron = self._PickaxeText(iron, IRON_TEXT_LEN)
+        self.gold = self._PickaxeText(gold, GOLD_TEXT_LEN)
+        self.jade = self._PickaxeText(jade, JADE_TEXT_LEN)
+        self.opal = self._PickaxeText(opal, OPAL_TEXT_LEN)
+        self.ruby = self._PickaxeText(ruby, RUBY_TEXT_LEN)
+
+    def to_bytes(self):
+        out = b''
+        out += self.iron.to_bytes()
+        out += self.gold.to_bytes()
+        out += self.jade.to_bytes()
+        out += self.opal.to_bytes()
+        out += self.ruby.to_bytes()
+        return out
+    
+    class _PickaxeText:
+        '''
+        60 xx yy <-- Place the cursor at pixel xx, yy
+        '''
+        class PixelPosition:
+            def __init__(self, x: int, y: int):
+                self.x = x
+                self.y = y
+
+            def to_bytes(self):
+                return b'\x60' + self.x.to_bytes(1) + self.y.to_bytes(1)
+            
+        def __init__(self, text: str, max_len: int):
+            self.text = text
+            self.max_len = max_len
+
+        def to_bytes(self):
+            MAX_WIDTH = 80    # maximum line width in pixels
+            CHAR_WIDTH = 8    # width of a character in pixels
+            CHAR_HEIGHT = 16  # height of character in pixels
+
+            SCREEN_WIDTH = 0x100  # width of the screen in pixels
+            SCREEN_HEIGHT = 0xF0  # height of the screen in pixels
+
+            lines: str = []
+
+            i = 0
+            while i < len(self.text):
+                txt = ''
+
+                start = i
+                while i < len(self.text):
+                    line_len = i - start
+                    if self.text[i] == '\n':
+                        break
+                    if CHAR_WIDTH*line_len >= MAX_WIDTH:
+                        while self.text[i] != ' ':
+                            i -= 1
+                        break
+                    i += 1
+
+                line = self.text[start : i]
+                lines.append(line)
+
+                i += 1
+            
+            out = b''
+
+            center_width = SCREEN_WIDTH // 2
+            center_height = SCREEN_HEIGHT // 2
+
+            msg_y_start = center_height - ((len(lines)*CHAR_HEIGHT) // 2)
+
+            print(lines)
+            
+            for line_num, line in enumerate(lines):
+                if line == '': # no need to add bytes for empty lines!
+                    continue
+                out += self.PixelPosition(
+                    center_width - ((CHAR_WIDTH*len(line)) // 2),
+                    msg_y_start + (CHAR_HEIGHT*line_num)
+                ).to_bytes()
+                out += line.encode(encoding='ascii')
+
+            assert len(out) + 1 <= self.max_len # + 1 because we still need to add at least one b'\x00'
+            out += b'\x00' * (self.max_len - len(out))
+            return out
+
+# PickaxeTexts.PickaxeText("I like\nwearing jeans on sundays", 0x3e).to_bytes()
